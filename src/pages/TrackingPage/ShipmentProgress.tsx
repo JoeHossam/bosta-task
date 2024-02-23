@@ -1,23 +1,19 @@
-import { TDeliveryStatus, getShipmentDetails } from "@/api";
+import { TDeliveryStatus } from "@/api";
 import { Spinner as LoadingSpinner } from "@/assets/icons";
 import ProgressStageManager from "@/components/ProgressStageManager";
-import { useQuery } from "@tanstack/react-query";
 import { Store, Truck } from "lucide-react";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 import { arEG, enAU } from "date-fns/locale";
+import useGetShipmentDetails from "@/hooks/useGetShipmentDetails";
 
 const ShipmentProgress = () => {
   const { shipmentNumber } = useParams<{ shipmentNumber: string }>();
   const { t, i18n } = useTranslation();
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["shipmentNumber", shipmentNumber],
-    queryFn: () => getShipmentDetails(shipmentNumber!),
-    enabled: !!shipmentNumber,
-  });
+  const { data, isLoading, isError } = useGetShipmentDetails(shipmentNumber);
 
   if (!shipmentNumber) {
     return (

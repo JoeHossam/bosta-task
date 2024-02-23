@@ -15,6 +15,8 @@ const AppHeader = () => {
   const navigate = useNavigate();
   const handleSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     navigate(`/${i18n.language}/${e.target.id.value}`);
   };
   return (

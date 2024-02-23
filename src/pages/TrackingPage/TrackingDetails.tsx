@@ -1,5 +1,10 @@
+import { format } from "date-fns";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
+import { arEG, enAU } from "date-fns/locale";
+import { useParams } from "react-router-dom";
+import useGetShipmentDetails from "@/hooks/useGetShipmentDetails";
+import LoadingSpinner from "@/assets/icons/spinner";
 
 const TrackingDetails = () => {
   const { t } = useTranslation();
@@ -12,7 +17,21 @@ const TrackingDetails = () => {
 };
 
 const DetailsTable = () => {
-  const { t } = useTranslation();
+  const { shipmentNumber } = useParams<{ shipmentNumber: string }>();
+  const { data, isLoading, isError } = useGetShipmentDetails(shipmentNumber);
+  const { t, i18n } = useTranslation();
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-xl">
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (isError || !data) {
+    return <div>{t("SOMETHING_WENT_WRONG")}</div>;
+  }
 
   return (
     <table className="table-fixed w-full rounded-md p-1 overflow-hidden">
@@ -33,16 +52,22 @@ const DetailsTable = () => {
         </tr>
       </thead>
       <tbody>
-        {Array.from({ length: 10 })
-          .fill(0)
-          .map((_, idx) => (
-            <tr key={idx} className="border">
-              <TableCell>مدينة نصر</TableCell>
-              <TableCell>{idx}</TableCell>
-              <TableCell>11</TableCell>
-              <TableCell>11</TableCell>
-            </tr>
-          ))}
+        {data.TransitEvents.map((event, idx) => (
+          <tr key={idx} className="border">
+            <TableCell>مدينة نصر</TableCell>
+            <TableCell>
+              {format(event.timestamp, "dd/MM/yyyy", {
+                locale: i18n.language === "ar" ? arEG : enAU,
+              })}
+            </TableCell>
+            <TableCell>
+              {format(event.timestamp, "hh:mm a", {
+                locale: i18n.language === "ar" ? arEG : enAU,
+              })}
+            </TableCell>
+            <TableCell>{t(event.state)}</TableCell>
+          </tr>
+        ))}
       </tbody>
     </table>
   );
